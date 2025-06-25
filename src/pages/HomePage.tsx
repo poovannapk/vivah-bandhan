@@ -15,6 +15,7 @@ import {
 } from 'lucide-react';
 import { Button } from '../components/ui/Button';
 import { Card } from '../components/ui/Card';
+import { FaqPage } from './FaqPage';
 
 export const HomePage: React.FC<{ onOpenRegisterModal?: () => void }> = ({ onOpenRegisterModal }) => {
   const stats = [
@@ -379,6 +380,8 @@ export const HomePage: React.FC<{ onOpenRegisterModal?: () => void }> = ({ onOpe
           </motion.div>
         </div>
       </section>
+
+      <FaqPage />
     </div>
   );
 };
