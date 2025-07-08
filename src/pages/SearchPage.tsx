@@ -22,6 +22,92 @@ import { Badge } from '../components/ui/Badge';
 import { Modal } from '../components/ui/Modal';
 import { useAuth } from '../context/AuthContext';
 
+// Place the profiles array here, outside the component
+const profiles = [
+  {
+    id: '1',
+    name: 'Priya Sharma',
+    age: 26,
+    height: '5.4',
+    education: 'Masters in Computer Science',
+    occupation: 'Software Engineer',
+    company: 'Google',
+    location: 'Mumbai, Maharashtra',
+    religion: 'Hindu',
+    caste: 'Brahmin',
+    motherTongue: 'Hindi',
+    salary: '₹15-20 LPA',
+    photos: [
+      'https://images.pexels.com/photos/1382734/pexels-photo-1382734.jpeg?auto=compress&cs=tinysrgb&w=400',
+      'https://images.pexels.com/photos/1130626/pexels-photo-1130626.jpeg?auto=compress&cs=tinysrgb&w=400'
+    ],
+    compatibility: 94,
+    horoscopeMatch: 89,
+    isOnline: true,
+    lastSeen: 'Online now',
+    verified: true,
+    premium: true,
+    aboutMe: 'I am a software engineer working at Google. I love traveling, reading books, and cooking. Looking for a life partner who shares similar values and interests.',
+    hobbies: ['Reading', 'Traveling', 'Cooking', 'Photography'],
+    familyType: 'Nuclear Family',
+    manglik: 'No'
+  },
+  {
+    id: '2',
+    name: 'Ananya Patel',
+    age: 24,
+    height: '5.2',
+    education: 'MBBS, MD',
+    occupation: 'Doctor',
+    company: 'Apollo Hospital',
+    location: 'Ahmedabad, Gujarat',
+    religion: 'Hindu',
+    caste: 'Patel',
+    motherTongue: 'Gujarati',
+    salary: '₹12-15 LPA',
+    photos: [
+      'https://images.pexels.com/photos/1181424/pexels-photo-1181424.jpeg?auto=compress&cs=tinysrgb&w=400'
+    ],
+    compatibility: 91,
+    horoscopeMatch: 85,
+    isOnline: false,
+    lastSeen: '2 hours ago',
+    verified: true,
+    premium: false,
+    aboutMe: 'I am a doctor by profession and believe in helping others. I enjoy classical music, yoga, and spending time with family.',
+    hobbies: ['Music', 'Yoga', 'Reading', 'Gardening'],
+    familyType: 'Joint Family',
+    manglik: 'Yes'
+  },
+  {
+    id: '3',
+    name: 'Kavya Reddy',
+    age: 28,
+    height: '5.6',
+    education: 'MBA in Marketing',
+    occupation: 'Marketing Manager',
+    company: 'Unilever',
+    location: 'Hyderabad, Telangana',
+    religion: 'Hindu',
+    caste: 'Reddy',
+    motherTongue: 'Telugu',
+    salary: '₹18-25 LPA',
+    photos: [
+      'https://images.pexels.com/photos/1239291/pexels-photo-1239291.jpeg?auto=compress&cs=tinysrgb&w=400'
+    ],
+    compatibility: 87,
+    horoscopeMatch: 92,
+    isOnline: true,
+    lastSeen: 'Online now',
+    verified: true,
+    premium: true,
+    aboutMe: 'Marketing professional with a passion for creativity and innovation. Love dancing, traveling, and trying new cuisines.',
+    hobbies: ['Dancing', 'Traveling', 'Cooking', 'Movies'],
+    familyType: 'Nuclear Family',
+    manglik: 'Anshik'
+  }
+];
+
 export const SearchPage: React.FC<{ onOpenRegisterModal?: () => void }> = ({ onOpenRegisterModal }) => {
   const { user } = useAuth();
   const [showFilters, setShowFilters] = useState(false);
@@ -37,91 +123,6 @@ export const SearchPage: React.FC<{ onOpenRegisterModal?: () => void }> = ({ onO
   });
   const [searchTerm, setSearchTerm] = useState('');
   const [results, setResults] = useState(profiles);
-
-  const profiles = [
-    {
-      id: '1',
-      name: 'Priya Sharma',
-      age: 26,
-      height: '5.4',
-      education: 'Masters in Computer Science',
-      occupation: 'Software Engineer',
-      company: 'Google',
-      location: 'Mumbai, Maharashtra',
-      religion: 'Hindu',
-      caste: 'Brahmin',
-      motherTongue: 'Hindi',
-      salary: '₹15-20 LPA',
-      photos: [
-        'https://images.pexels.com/photos/1382734/pexels-photo-1382734.jpeg?auto=compress&cs=tinysrgb&w=400',
-        'https://images.pexels.com/photos/1130626/pexels-photo-1130626.jpeg?auto=compress&cs=tinysrgb&w=400'
-      ],
-      compatibility: 94,
-      horoscopeMatch: 89,
-      isOnline: true,
-      lastSeen: 'Online now',
-      verified: true,
-      premium: true,
-      aboutMe: 'I am a software engineer working at Google. I love traveling, reading books, and cooking. Looking for a life partner who shares similar values and interests.',
-      hobbies: ['Reading', 'Traveling', 'Cooking', 'Photography'],
-      familyType: 'Nuclear Family',
-      manglik: 'No'
-    },
-    {
-      id: '2',
-      name: 'Ananya Patel',
-      age: 24,
-      height: '5.2',
-      education: 'MBBS, MD',
-      occupation: 'Doctor',
-      company: 'Apollo Hospital',
-      location: 'Ahmedabad, Gujarat',
-      religion: 'Hindu',
-      caste: 'Patel',
-      motherTongue: 'Gujarati',
-      salary: '₹12-15 LPA',
-      photos: [
-        'https://images.pexels.com/photos/1181424/pexels-photo-1181424.jpeg?auto=compress&cs=tinysrgb&w=400'
-      ],
-      compatibility: 91,
-      horoscopeMatch: 85,
-      isOnline: false,
-      lastSeen: '2 hours ago',
-      verified: true,
-      premium: false,
-      aboutMe: 'I am a doctor by profession and believe in helping others. I enjoy classical music, yoga, and spending time with family.',
-      hobbies: ['Music', 'Yoga', 'Reading', 'Gardening'],
-      familyType: 'Joint Family',
-      manglik: 'Yes'
-    },
-    {
-      id: '3',
-      name: 'Kavya Reddy',
-      age: 28,
-      height: '5.6',
-      education: 'MBA in Marketing',
-      occupation: 'Marketing Manager',
-      company: 'Unilever',
-      location: 'Hyderabad, Telangana',
-      religion: 'Hindu',
-      caste: 'Reddy',
-      motherTongue: 'Telugu',
-      salary: '₹18-25 LPA',
-      photos: [
-        'https://images.pexels.com/photos/1239291/pexels-photo-1239291.jpeg?auto=compress&cs=tinysrgb&w=400'
-      ],
-      compatibility: 87,
-      horoscopeMatch: 92,
-      isOnline: true,
-      lastSeen: 'Online now',
-      verified: true,
-      premium: true,
-      aboutMe: 'Marketing professional with a passion for creativity and innovation. Love dancing, traveling, and trying new cuisines.',
-      hobbies: ['Dancing', 'Traveling', 'Cooking', 'Movies'],
-      familyType: 'Nuclear Family',
-      manglik: 'Anshik'
-    }
-  ];
 
   const educationOptions = [
     { value: 'bachelors', label: 'Bachelors' },

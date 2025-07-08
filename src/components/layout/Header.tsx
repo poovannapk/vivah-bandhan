@@ -122,6 +122,29 @@ export const Header: React.FC<{ onOpenLoginModal?: () => void; onOpenRegisterMod
                 <Button onClick={onOpenRegisterModal}>
                   Get Started
                 </Button>
+                <Button
+                  className="ml-2"
+                  variant="outline"
+                  onClick={() => {
+                    // Set a dummy user in localStorage and reload
+                    localStorage.setItem('user', JSON.stringify({
+                      firstName: 'Demo',
+                      lastName: 'User',
+                      email: 'demo@vivah.com',
+                      dateOfBirth: '1995-01-01',
+                      gender: 'male',
+                      phone: '9999999999',
+                      occupation: 'Engineer',
+                      city: 'Mumbai',
+                      state: 'Maharashtra',
+                      country: 'India',
+                      // add more fields as needed
+                    }));
+                    window.location.reload();
+                  }}
+                >
+                  Temporary Login
+                </Button>
               </div>
             )}
 

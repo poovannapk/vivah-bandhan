@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { 
   User, 
@@ -17,7 +17,6 @@ import { useAuth } from '../context/AuthContext';
 import { Button } from '../components/ui/Button';
 import { Input } from '../components/ui/Input';
 import { Card } from '../components/ui/Card';
-import { GoogleLogin } from '@react-oauth/google';
 
 export const RegisterPage: React.FC<{ onSwitchToLogin?: () => void }> = ({ onSwitchToLogin }) => {
   const [formData, setFormData] = useState({
@@ -37,8 +36,9 @@ export const RegisterPage: React.FC<{ onSwitchToLogin?: () => void }> = ({ onSwi
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [error, setError] = useState('');
   const [step, setStep] = useState(1);
-  const { register, isLoading } = useAuth();
-  const navigate = useNavigate();
+  const [socialLoading, setSocialLoading] = useState<'google' | 'facebook' | null>(null);
+  const [socialError, setSocialError] = useState('');
+  const { register, isLoading, user } = useAuth();
 
   const handleInputChange = (field: string, value: string) => {
     setFormData(prev => ({ ...prev, [field]: value }));
@@ -65,58 +65,37 @@ export const RegisterPage: React.FC<{ onSwitchToLogin?: () => void }> = ({ onSwi
     return true;
   };
 
-  const validateStep2 = () => {
-    const { dateOfBirth, city } = formData;
-    
-    if (!dateOfBirth || !city) {
-      setError('Please fill all required fields');
-      return false;
-    }
-    
-    const age = new Date().getFullYear() - new Date(dateOfBirth).getFullYear();
-    if (age < 18) {
-      setError('You must be at least 18 years old to register');
-      return false;
-    }
-    
-    return true;
-  };
-
-  const handleNext = () => {
-    setError('');
-    if (step === 1 && validateStep1()) {
-      setStep(2);
-    }
-  };
-
-  const handleSubmit = async (e: React.FormEvent) => {
+  const handleRegister = async (e: React.FormEvent) => {
     e.preventDefault();
     setError('');
-
-    if (!validateStep2()) return;
-
+    if (!validateStep1()) return;
     try {
-      // Call your API endpoint for registration
-      const response = await fetch('/api/register', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(formData),
+      await register({
+        firstName: formData.firstName,
+        lastName: formData.lastName,
+        email: formData.email,
+        phone: formData.phone,
+        password: formData.password,
+        dateOfBirth: formData.dateOfBirth,
+        gender: formData.gender,
       });
-
-      if (!response.ok) {
-        const errorData = await response.json();
-        setError(errorData.message || 'Registration failed. Please try again.');
-        return;
-      }
-
-      // Optionally, handle returned user/token here
-      // const data = await response.json();
-      // await register(data);
-
-      navigate('/profile-setup');
+      setStep(2); // Show verification step
     } catch (err) {
-      setError('Registration failed. Please try again.');
+      if (err instanceof Error) setError(err.message || 'Registration failed');
+      else setError('Registration failed');
     }
+  };
+
+  // Social login handlers
+  const handleGoogleLogin = () => {
+    setSocialError('');
+    setSocialLoading('google');
+    window.location.href = '/api/auth/google';
+  };
+  const handleFacebookLogin = () => {
+    setSocialError('');
+    setSocialLoading('facebook');
+    window.location.href = '/api/auth/facebook';
   };
 
   return (
@@ -161,7 +140,7 @@ export const RegisterPage: React.FC<{ onSwitchToLogin?: () => void }> = ({ onSwi
           </div>
 
           {/* Form */}
-          <form onSubmit={step === 1 ? (e) => { e.preventDefault(); handleNext(); } : handleSubmit}>
+          <form onSubmit={handleRegister}>
             {error && (
               <div className="bg-red-50 border border-red-200 text-red-600 px-4 py-3 rounded-lg text-sm mb-6">
                 {error}
@@ -195,11 +174,11 @@ export const RegisterPage: React.FC<{ onSwitchToLogin?: () => void }> = ({ onSwi
                   type="email"
                   label="Email Address"
                   value={formData.email}
-                  onChange={(e) => handleInputChange('email', e.target.value)}
-                  icon={<Mail className="h-5 w-5" />}
-                  placeholder="Enter your email"
-                  required
-                  data-testid="register-email"
+                    onChange={(e) => handleInputChange('email', e.target.value)}
+                    icon={<Mail className="h-5 w-5" />}
+                    placeholder="Enter your email"
+                    required
+                    data-testid="register-email"
                 />
 
                 <Input
@@ -383,6 +362,13 @@ export const RegisterPage: React.FC<{ onSwitchToLogin?: () => void }> = ({ onSwi
             )}
           </form>
 
+          {/* Verification Message */}
+          {step === 2 && (
+            <div className="p-4 text-green-600 text-center">
+              Registration successful! Please check your email to verify your account.
+            </div>
+          )}
+
           {/* Divider */}
           <div className="my-6">
             <div className="relative">
@@ -396,16 +382,17 @@ export const RegisterPage: React.FC<{ onSwitchToLogin?: () => void }> = ({ onSwi
           </div>
 
           {/* Social Login Buttons */}
-          <div className="grid grid-cols-2 gap-3 mb-6">
-            <Button variant="outline" className="w-full">
+          <div className="grid grid-cols-2 gap-3">
+            <Button variant="outline" className="w-full" onClick={handleGoogleLogin} type="button" isLoading={socialLoading === 'google'} disabled={socialLoading !== null}>
               <img src="https://www.google.com/favicon.ico" alt="Google" className="h-5 w-5 mr-2" />
               Google
             </Button>
-            <Button variant="outline" className="w-full">
+            <Button variant="outline" className="w-full" onClick={handleFacebookLogin} type="button" isLoading={socialLoading === 'facebook'} disabled={socialLoading !== null}>
               <img src="https://www.facebook.com/favicon.ico" alt="Facebook" className="h-5 w-5 mr-2" />
               Facebook
             </Button>
           </div>
+          {socialError && <div className="text-red-600 text-center mt-2">{socialError}</div>}
 
           {/* Footer */}
           <div className="mt-8 text-center">

@@ -14,6 +14,12 @@ import { ProfilePage } from './pages/ProfilePage';
 import { SuccessStoriesPage } from './pages/SuccessStoriesPage';
 import { AdminDashboard } from './pages/AdminDashboard';
 import { Modal } from './components/ui/Modal';
+import ForgotPasswordPage from './pages/ForgotPasswordPage';
+import ResetPasswordPage from './pages/ResetPasswordPage';
+import VerifyEmailPage from './pages/VerifyEmailPage';
+import SocialLoginSuccess from './pages/SocialLoginSuccess';
+import CompleteProfilePage from './pages/CompleteProfilePage';
+import ProkeralaMatchPage from './pages/compatibility/ProkeralaMatchPage';
 
 const ProtectedRoute: React.FC<{ children: React.ReactNode; adminOnly?: boolean }> = ({ 
   children, 
@@ -48,8 +54,14 @@ const AppContent: React.FC = () => {
           <Route path="/" element={<HomePage onOpenRegisterModal={() => setShowRegisterModal(true)} />} />
           <Route path="/login" element={<LoginPage />} />
           <Route path="/register" element={<RegisterPage />} />
+          <Route path="/forgot-password" element={<ForgotPasswordPage />} />
+          <Route path="/reset-password" element={<ResetPasswordPage />} />
+          <Route path="/verify-email" element={<VerifyEmailPage />} />
           <Route path="/pricing" element={<PricingPage />} />
           <Route path="/success-stories" element={<SuccessStoriesPage />} />
+          <Route path="/social-login-success" element={<SocialLoginSuccess />} />
+          <Route path="/complete-profile" element={<CompleteProfilePage />} />
+          <Route path="/compatibility/prokerala" element={<ProkeralaMatchPage />} />
           
           {/* Protected Routes */}
           <Route 

@@ -1,5 +1,16 @@
 import React, { useState } from 'react';
-import { motion } from 'framer-motion';
+// Kundli compatibility modal state and handlers
+type KundliForm = {
+  userDob: string;
+  userTime: string;
+  userPlace: string;
+  partnerDob: string;
+  partnerTime: string;
+  partnerPlace: string;
+};
+
+// ...existing code...
+// import { motion } from 'framer-motion';
 import { 
   Camera, 
   Edit, 
@@ -27,9 +38,11 @@ import { Input } from '../components/ui/Input';
 import { Select } from '../components/ui/Select';
 import { Badge } from '../components/ui/Badge';
 import { useAuth } from '../context/AuthContext';
+import { useNavigate } from 'react-router-dom';
 
 export const ProfilePage: React.FC = () => {
   const { user, updateUser } = useAuth();
+  const navigate = useNavigate();
   const [isEditing, setIsEditing] = useState(false);
   const [activeTab, setActiveTab] = useState('basic');
   const [profileData, setProfileData] = useState({
@@ -89,6 +102,62 @@ export const ProfilePage: React.FC = () => {
     rashi: 'Taurus',
     gotra: 'Bharadwaj'
   });
+
+  // Kundli compatibility modal state and handlers (now after user/profileData)
+  const [showKundliModal, setShowKundliModal] = useState(false);
+  const [kundliForm, setKundliForm] = useState<KundliForm>({
+    userDob: '',
+    userTime: '',
+    userPlace: '',
+    partnerDob: '',
+    partnerTime: '',
+    partnerPlace: '',
+  });
+  const [kundliResult, setKundliResult] = useState<any>(null);
+  const [kundliError, setKundliError] = useState('');
+  const [kundliLoading, setKundliLoading] = useState(false);
+
+  // Prefill kundliForm when user/profileData changes
+  React.useEffect(() => {
+    setKundliForm(f => ({
+      ...f,
+      userDob: user?.dateOfBirth || '',
+      userTime: profileData.birthTime || '',
+      userPlace: profileData.birthPlace || '',
+    }));
+  }, [user, profileData.birthTime, profileData.birthPlace, profileData.dateOfBirth]);
+
+  const handleKundliSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setKundliError('');
+    setKundliResult(null);
+    setKundliLoading(true);
+    try {
+      const res = await fetch('/api/compatibility/prokerala-match', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          user: {
+            dob: kundliForm.userDob,
+            time: kundliForm.userTime,
+            place: kundliForm.userPlace,
+          },
+          partner: {
+            dob: kundliForm.partnerDob,
+            time: kundliForm.partnerTime,
+            place: kundliForm.partnerPlace,
+          },
+        }),
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error || 'Failed to fetch compatibility');
+      setKundliResult(data);
+    } catch (err) {
+      setKundliError(err instanceof Error ? err.message : 'Failed to fetch compatibility');
+    } finally {
+      setKundliLoading(false);
+    }
+  };
 
   const [newHobby, setNewHobby] = useState('');
   const [newInterest, setNewInterest] = useState('');
@@ -653,6 +722,127 @@ export const ProfilePage: React.FC = () => {
                       onChange={(e) => handleInputChange('gotra', e.target.value)}
                       disabled={!isEditing}
                     />
+                    <Button
+                      className="mt-4"
+                      onClick={() => setShowKundliModal(true)}
+                      type="button"
+                    >
+                      Check Kundli Compatibility
+                    </Button>
+                    {/* Kundli Compatibility Modal */}
+                    {showKundliModal && (
+                      <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-40">
+                        <div className="bg-white rounded-lg shadow-lg max-w-lg w-full p-6 relative animate-fadeIn">
+                          <button
+                            className="absolute top-3 right-3 text-gray-400 hover:text-gray-700"
+                            onClick={() => {
+                              setShowKundliModal(false);
+                              setKundliResult(null);
+                              setKundliError('');
+                            }}
+                            aria-label="Close"
+                          >
+                            <X className="h-5 w-5" />
+                          </button>
+                          <h3 className="text-xl font-semibold mb-4 text-center text-primary-700">Kundli Compatibility</h3>
+                          <form
+                            className="space-y-4"
+                            onSubmit={handleKundliSubmit}
+                          >
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                              <Input
+                                label="Your Birth Date"
+                                type="date"
+                                value={kundliForm.userDob}
+                                onChange={e => setKundliForm(f => ({ ...f, userDob: e.target.value }))}
+                                required
+                              />
+                              <Input
+                                label="Your Birth Time"
+                                value={kundliForm.userTime}
+                                onChange={e => setKundliForm(f => ({ ...f, userTime: e.target.value }))}
+                                required
+                              />
+                              <Input
+                                label="Your Birth Place"
+                                value={kundliForm.userPlace}
+                                onChange={e => setKundliForm(f => ({ ...f, userPlace: e.target.value }))}
+                                required
+                              />
+                              <Input
+                                label="Partner's Birth Date"
+                                type="date"
+                                value={kundliForm.partnerDob}
+                                onChange={e => setKundliForm(f => ({ ...f, partnerDob: e.target.value }))}
+                                required
+                              />
+                              <Input
+                                label="Partner's Birth Time"
+                                value={kundliForm.partnerTime}
+                                onChange={e => setKundliForm(f => ({ ...f, partnerTime: e.target.value }))}
+                                required
+                              />
+                              <Input
+                                label="Partner's Birth Place"
+                                value={kundliForm.partnerPlace}
+                                onChange={e => setKundliForm(f => ({ ...f, partnerPlace: e.target.value }))}
+                                required
+                              />
+                            </div>
+                            <Button
+                              type="submit"
+                              className="w-full mt-2"
+                              loading={kundliLoading}
+                            >
+                              {kundliLoading ? 'Checking...' : 'Check Compatibility'}
+                            </Button>
+                          </form>
+                          {kundliError && (
+                            <div className="mt-4 text-red-600 text-center">{kundliError}</div>
+                          )}
+                          {kundliResult && (
+                            <div className="mt-6">
+                              <h4 className="text-lg font-bold text-primary-700 mb-2 text-center">Result Summary</h4>
+                              <div className="bg-gray-50 rounded-lg p-4 border border-gray-200">
+                                <div className="flex flex-col gap-2">
+                                  <div className="flex justify-between">
+                                    <span className="font-medium">Total Points:</span>
+                                    <span className="font-bold text-primary-600">{kundliResult.total_points ?? '-'}</span>
+                                  </div>
+                                  <div className="flex justify-between">
+                                    <span className="font-medium">Obtained Points:</span>
+                                    <span className="font-bold text-green-600">{kundliResult.obtained_points ?? '-'}</span>
+                                  </div>
+                                  <div className="flex justify-between">
+                                    <span className="font-medium">Match Status:</span>
+                                    <span className={`font-bold ${kundliResult.match_status === 'Match' ? 'text-green-700' : 'text-red-700'}`}>{kundliResult.match_status ?? '-'}</span>
+                                  </div>
+                                </div>
+                                {kundliResult.gunas && Array.isArray(kundliResult.gunas) && (
+                                  <div className="mt-4">
+                                    <h5 className="font-semibold mb-2">Guna Details:</h5>
+                                    <ul className="grid grid-cols-2 gap-2 text-sm">
+                                      {kundliResult.gunas.map((g: any, idx: number) => (
+                                        <li key={idx} className="flex justify-between">
+                                          <span>{g.name}</span>
+                                          <span className="font-bold">{g.points}</span>
+                                        </li>
+                                      ))}
+                                    </ul>
+                                  </div>
+                                )}
+                                {kundliResult.suggestions && (
+                                  <div className="mt-4">
+                                    <h5 className="font-semibold mb-2">Suggestions:</h5>
+                                    <div className="text-gray-700 text-sm">{kundliResult.suggestions}</div>
+                                  </div>
+                                )}
+                              </div>
+                            </div>
+                          )}
+                        </div>
+                      </div>
+                    )}
                   </div>
                 </div>
               )}
@@ -662,4 +852,4 @@ export const ProfilePage: React.FC = () => {
       </div>
     </div>
   );
-};
+}

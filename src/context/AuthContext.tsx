@@ -4,7 +4,7 @@ import { User } from '../types';
 interface AuthContextType {
   user: User | null;
   login: (email: string, password: string) => Promise<void>;
-  register: (userData: Partial<User>) => Promise<void>;
+  register: (userData: Partial<User> & { password?: string }) => Promise<void>;
   logout: () => void;
   updateUser: (userData: Partial<User>) => void;
   isLoading: boolean;
@@ -37,45 +37,57 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const login = async (email: string, password: string) => {
     setIsLoading(true);
     try {
-      // Simulate API call
-      await new Promise(resolve => setTimeout(resolve, 1000));
-      
-      // Check if admin login
-      const isAdminLogin = email === 'admin@vivahbandhan.ai';
-      
-      const mockUser: User = {
-        id: isAdminLogin ? 'admin-1' : '1',
-        email,
-        firstName: isAdminLogin ? 'Admin' : 'John',
-        lastName: isAdminLogin ? 'User' : 'Doe',
-        dateOfBirth: '1990-01-01',
+      const res = await fetch('/api/auth/login', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email, password }),
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error || 'Login failed');
+      // Save token and user info
+      localStorage.setItem('token', data.token);
+      setUser({
+        id: Date.now().toString(),
+        email: data.user.email,
+        firstName: data.user.name?.split(' ')[0] || '',
+        lastName: data.user.name?.split(' ').slice(1).join(' ') || '',
+        dateOfBirth: '',
         gender: 'male',
-        phone: '+1234567890',
+        phone: '',
         isVerified: true,
-        profileComplete: !isAdminLogin,
-        subscription: isAdminLogin ? 'elite' : 'free',
+        profileComplete: true,
+        subscription: 'free',
         isActive: true,
         lastSeen: new Date().toISOString(),
-        joinedDate: '2024-01-01',
+        joinedDate: new Date().toISOString(),
         verificationStatus: 'verified',
-        role: isAdminLogin ? 'admin' : 'user',
-      };
-      
-      setUser(mockUser);
-      localStorage.setItem('user', JSON.stringify(mockUser));
+        role: data.user.role || 'user',
+      });
+      localStorage.setItem('user', JSON.stringify(data.user));
     } catch (error) {
+      if (error instanceof Error) throw new Error(error.message || 'Login failed');
       throw new Error('Login failed');
     } finally {
       setIsLoading(false);
     }
   };
 
-  const register = async (userData: Partial<User>) => {
+  const register = async (userData: Partial<User> & { password?: string }) => {
     setIsLoading(true);
     try {
-      // Simulate API call
-      await new Promise(resolve => setTimeout(resolve, 1000));
-      
+      // Real API call
+      const res = await fetch('/api/auth/register', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          name: `${userData.firstName || ''} ${userData.lastName || ''}`.trim(),
+          email: userData.email,
+          password: userData.password,
+        }),
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error || 'Registration failed');
+      // Only set user as unverified, let them verify via email
       const newUser: User = {
         id: Date.now().toString(),
         email: userData.email || '',
@@ -93,10 +105,10 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         verificationStatus: 'pending',
         role: 'user',
       };
-      
       setUser(newUser);
       localStorage.setItem('user', JSON.stringify(newUser));
     } catch (error) {
+      if (error instanceof Error) throw new Error(error.message || 'Registration failed');
       throw new Error('Registration failed');
     } finally {
       setIsLoading(false);

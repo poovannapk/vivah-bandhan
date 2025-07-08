@@ -12,33 +12,33 @@ export const LoginPage: React.FC<{ onSwitchToRegister?: () => void }> = ({ onSwi
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState('');
-  const { login, isLoading } = useAuth();
+  const [socialLoading, setSocialLoading] = useState<'google' | 'facebook' | null>(null);
+  const [socialError, setSocialError] = useState('');
+  const { login, isLoading, user } = useAuth();
   const navigate = useNavigate();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError('');
-
     try {
-      // Call your API endpoint for login
-      const response = await fetch('/api/login', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email, password }),
-      });
-
-      if (!response.ok) {
-        throw new Error('Invalid email or password');
-      }
-
-      const data = await response.json();
-      // Call your context login with the user data/token
-      await login(data); // Adjust this if your login expects token/user
-
+      await login(email, password);
       navigate('/dashboard');
     } catch (err) {
-      setError('Invalid email or password');
+      if (err instanceof Error) setError(err.message || 'Login failed.');
+      else setError('Login failed.');
     }
+  };
+
+  // Social login handlers
+  const handleGoogleLogin = () => {
+    setSocialError('');
+    setSocialLoading('google');
+    window.location.href = '/api/auth/google';
+  };
+  const handleFacebookLogin = () => {
+    setSocialError('');
+    setSocialLoading('facebook');
+    window.location.href = '/api/auth/facebook';
   };
 
   return (
@@ -141,15 +141,16 @@ export const LoginPage: React.FC<{ onSwitchToRegister?: () => void }> = ({ onSwi
 
           {/* Social Login */}
           <div className="grid grid-cols-2 gap-3">
-            <Button variant="outline" className="w-full">
+            <Button variant="outline" className="w-full" onClick={handleGoogleLogin} type="button" isLoading={socialLoading === 'google'} disabled={socialLoading !== null}>
               <img src="https://www.google.com/favicon.ico" alt="Google" className="h-5 w-5 mr-2" />
               Google
             </Button>
-            <Button variant="outline" className="w-full">
+            <Button variant="outline" className="w-full" onClick={handleFacebookLogin} type="button" isLoading={socialLoading === 'facebook'} disabled={socialLoading !== null}>
               <img src="https://www.facebook.com/favicon.ico" alt="Facebook" className="h-5 w-5 mr-2" />
               Facebook
             </Button>
           </div>
+          {socialError && <div className="text-red-600 text-center mt-2">{socialError}</div>}
 
           {/* Footer */}
           <div className="mt-6 text-center">
@@ -170,6 +171,20 @@ export const LoginPage: React.FC<{ onSwitchToRegister?: () => void }> = ({ onSwi
               )}
             </p>
           </div>
+
+          {/* Welcome Message */}
+          {user && (
+            <div className="p-4 text-green-600 text-center">
+              Welcome, {user.firstName || user.email}!
+            </div>
+          )}
+
+          {/* Profile Completion Prompt */}
+          {user && !user.profileComplete && (
+            <div className="p-4 text-yellow-600 text-center">
+              Please complete your profile to get better matches!
+            </div>
+          )}
         </Card>
       </motion.div>
     </div>
