@@ -22,6 +22,16 @@ export const MatchesPage: React.FC = () => {
   const { user } = useAuth();
   const [selectedProfile, setSelectedProfile] = useState<any>(null);
 
+  // Dummy handlers for interest/message (replace with real logic)
+  const handleSendInterest = (profileId: string) => {
+    // TODO: Connect to backend
+    console.log('Sending interest to:', profileId);
+  };
+  const handleSendMessage = (profileId: string) => {
+    // TODO: Connect to backend
+    console.log('Sending message to:', profileId);
+  };
+
   return (
     <div className="min-h-screen bg-gray-50 pt-8 pb-12">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -69,10 +79,16 @@ export const MatchesPage: React.FC = () => {
                   {/* Quick Actions */}
                   <div className="absolute bottom-3 right-3 flex gap-2">
                     <button
+                      onClick={() => handleSendInterest(profile.id)}
                       className="bg-white/90 hover:bg-white p-2 rounded-full shadow-lg transition-colors"
-                      onClick={() => setSelectedProfile(profile)}
                     >
-                      <Eye className="h-5 w-5 text-primary-500" />
+                      <Heart className="h-5 w-5 text-red-500" />
+                    </button>
+                    <button
+                      onClick={() => handleSendMessage(profile.id)}
+                      className="bg-white/90 hover:bg-white p-2 rounded-full shadow-lg transition-colors"
+                    >
+                      <MessageCircle className="h-5 w-5 text-primary-500" />
                     </button>
                   </div>
                 </div>
@@ -106,6 +122,15 @@ export const MatchesPage: React.FC = () => {
                   </div>
                   <div className="mt-4 flex gap-2">
                     <Button
+                      size="sm"
+                      onClick={() => handleSendInterest(profile.id)}
+                      className="flex-1"
+                    >
+                      <Heart className="h-4 w-4 mr-1" />
+                      Interest
+                    </Button>
+                    <Button
+                      variant="outline"
                       size="sm"
                       onClick={() => setSelectedProfile(profile)}
                       className="flex-1"
@@ -193,14 +218,39 @@ export const MatchesPage: React.FC = () => {
               </div>
               <div className="flex gap-4 pt-4">
                 <Button
-                  onClick={() => setSelectedProfile(null)}
+                  onClick={() => handleSendInterest(selectedProfile.id)}
                   className="flex-1"
                 >
-                  Close
+                  <Heart className="h-5 w-5 mr-2" />
+                  Send Interest
+                </Button>
+                <Button
+                  variant="outline"
+                  onClick={() => handleSendMessage(selectedProfile.id)}
+                  className="flex-1"
+                >
+                  <MessageCircle className="h-5 w-5 mr-2" />
+                  Send Message
                 </Button>
               </div>
             </div>
           </Modal>
+        )}
+
+        {/* Load More */}
+        <div className="text-center mt-8">
+          <Button variant="outline" size="lg">
+            Load More Profiles
+          </Button>
+        </div>
+
+        {/* Get Started Button */}
+        {!user && (
+          <div className="flex justify-center my-8">
+            <Button size="lg" className="px-8 py-4" disabled>
+              Get Started
+            </Button>
+          </div>
         )}
       </div>
     </div>

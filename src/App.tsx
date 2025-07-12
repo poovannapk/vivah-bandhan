@@ -12,7 +12,7 @@ import { SearchPage } from './pages/SearchPage';
 import { MessagesPage } from './pages/MessagesPage';
 import { ProfilePage } from './pages/ProfilePage';
 import { SuccessStoriesPage } from './pages/SuccessStoriesPage';
-import { AdminDashboard } from './pages/AdminDashboard';
+import AdminRoutes from './pages/admin';
 import { Modal } from './components/ui/Modal';
 import ForgotPasswordPage from './pages/ForgotPasswordPage';
 import ResetPasswordPage from './pages/ResetPasswordPage';
@@ -20,6 +20,7 @@ import VerifyEmailPage from './pages/VerifyEmailPage';
 import SocialLoginSuccess from './pages/SocialLoginSuccess';
 import CompleteProfilePage from './pages/CompleteProfilePage';
 import ProkeralaMatchPage from './pages/compatibility/ProkeralaMatchPage';
+import ToastProvider from './components/ui/ToastProvider';
 
 const ProtectedRoute: React.FC<{ children: React.ReactNode; adminOnly?: boolean }> = ({ 
   children, 
@@ -45,6 +46,7 @@ const AppContent: React.FC = () => {
 
   return (
     <div className="min-h-screen flex flex-col">
+      <ToastProvider />
       <Header
         onOpenLoginModal={() => setShowLoginModal(true)}
         onOpenRegisterModal={() => setShowRegisterModal(true)}
@@ -98,14 +100,7 @@ const AppContent: React.FC = () => {
           />
           
           {/* Admin Only Routes */}
-          <Route 
-            path="/admin" 
-            element={
-              <ProtectedRoute adminOnly>
-                <AdminDashboard />
-              </ProtectedRoute>
-            } 
-          />
+          <Route path="/admin/*" element={<AdminRoutes />} />
           
           {/* Catch all route */}
           <Route path="*" element={<Navigate to="/" replace />} />
