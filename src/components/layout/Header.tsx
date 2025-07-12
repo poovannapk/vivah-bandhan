@@ -29,7 +29,7 @@ export const Header: React.FC<{ onOpenLoginModal?: () => void; onOpenRegisterMod
               <Handshake className="h-6 w-6 text-white" />
             </div>
             <span className="text-xl font-bold bg-gradient-to-r from-primary-600 to-secondary-600 bg-clip-text text-transparent">
-              Vivah Bandhan
+              Vivaha Bandhana
             </span>
           </Link>
 
