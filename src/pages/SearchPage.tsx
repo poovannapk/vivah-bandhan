@@ -11,8 +11,7 @@ import {
   Briefcase,
   GraduationCap,
   Calendar,
-  X,
-  ChevronDown
+ ChevronDown,
 } from 'lucide-react';
 import { Button } from '../components/ui/Button';
 import { Card } from '../components/ui/Card';

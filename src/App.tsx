@@ -13,6 +13,7 @@ import { MessagesPage } from './pages/MessagesPage';
 import { ProfilePage } from './pages/ProfilePage';
 import { SuccessStoriesPage } from './pages/SuccessStoriesPage';
 import AdminRoutes from './pages/admin';
+import { AdminDashboard } from './pages/AdminDashboard';
 import { Modal } from './components/ui/Modal';
 import ForgotPasswordPage from './pages/ForgotPasswordPage';
 import ResetPasswordPage from './pages/ResetPasswordPage';
