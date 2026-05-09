@@ -42,6 +42,12 @@ export const authApi = {
       body: JSON.stringify({ email, password }),
     }),
 
+  adminLogin: (email: string, password: string) =>
+    request<AuthResponse>('/api/auth/admin-login', {
+      method: 'POST',
+      body: JSON.stringify({ email, password }),
+    }),
+
   register: (userData: Partial<User> & { password?: string }) =>
     request<AuthResponse>('/api/auth/register', {
       method: 'POST',

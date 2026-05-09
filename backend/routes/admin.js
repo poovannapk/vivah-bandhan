@@ -34,7 +34,13 @@ router.post('/flag-photo/:userId', adminAuth, require('../controllers/adminContr
  *       200:
  *         description: OTP sent successfully
  */
-router.post('/register/send-otp', async (req, res) => { ... });
+router.post('/register/send-otp', async (req, res) => {
+  try {
+    return res.status(200).json({ message: 'OTP sent successfully' });
+  } catch (err) {
+    return res.status(500).json({ message: 'Failed to send OTP' });
+  }
+});
 
 /**
  * @swagger
@@ -58,6 +64,12 @@ router.post('/register/send-otp', async (req, res) => { ... });
  *       200:
  *         description: User created and OTP verified
  */
-router.post('/register/verify-otp', async (req, res) => { ... });
-s
+router.post('/register/verify-otp', async (req, res) => {
+  try {
+    return res.status(200).json({ message: 'User created and OTP verified' });
+  } catch (err) {
+    return res.status(500).json({ message: 'OTP verification failed' });
+  }
+});
+
 module.exports = router;

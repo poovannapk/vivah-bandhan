@@ -2,7 +2,7 @@ import React from 'react';
 import { Link, useLocation } from 'react-router-dom';
 
 const links = [
-  { to: '/admin/dashboard', label: 'Dashboard' },
+  { to: '/admin', label: 'Owner Dashboard' },
   { to: '/admin/users', label: 'Users' },
   { to: '/admin/subscription-analytics', label: 'Subscription Analytics' },
   { to: '/admin/flagged-messages', label: 'Flagged Messages' },
@@ -25,7 +25,7 @@ const AdminSidebar: React.FC = () => {
           <Link
             key={link.to}
             to={link.to}
-            className={`block px-3 py-2 rounded transition-colors ${location.pathname === link.to ? 'bg-blue-600 text-white' : 'hover:bg-blue-100 text-gray-800'}`}
+            className={`block px-3 py-2 rounded transition-colors ${location.pathname === link.to || (link.to === '/admin' && location.pathname === '/admin/dashboard') ? 'bg-blue-600 text-white' : 'hover:bg-blue-100 text-white/90 hover:text-blue-900'}`}
           >
             {link.label}
           </Link>

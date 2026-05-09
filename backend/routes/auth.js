@@ -14,6 +14,21 @@ const FRONTEND_URL = process.env.FRONTEND_URL || 'http://localhost:5173';
 
 const hasGoogleConfig = process.env.GOOGLE_CLIENT_ID && process.env.GOOGLE_CLIENT_SECRET && process.env.GOOGLE_CLIENT_ID !== 'your-google-client-id';
 const hasFacebookConfig = process.env.FB_CLIENT_ID && process.env.FB_CLIENT_SECRET && process.env.FB_CLIENT_ID !== 'your-facebook-app-id';
+const adminEmails = (process.env.ADMIN_EMAILS || '')
+  .split(',')
+  .map(email => email.trim().toLowerCase())
+  .filter(Boolean);
+const ADMIN_PASSWORD = process.env.ADMIN_PASSWORD || '';
+
+const isAdminEmail = (email = '') => adminEmails.includes(email.toLowerCase());
+
+const safeCompare = (value = '', expected = '') => {
+  const valueBuffer = Buffer.from(value);
+  const expectedBuffer = Buffer.from(expected);
+
+  if (valueBuffer.length !== expectedBuffer.length) return false;
+  return crypto.timingSafeEqual(valueBuffer, expectedBuffer);
+};
 
 const hashPassword = (password, salt = crypto.randomBytes(16).toString('hex')) => {
   const hash = crypto.scryptSync(password, salt, 64).toString('hex');
@@ -63,11 +78,13 @@ const findOrCreateSocialUser = async ({ provider, providerId, email, firstName, 
       email,
       social: { [`${provider}Id`]: providerId },
       verified: true,
+      role: isAdminEmail(email) ? 'admin' : 'user',
       personal: { firstName, lastName, photo },
     });
   } else {
     user.social = { ...(user.social || {}), [`${provider}Id`]: providerId };
     user.verified = true;
+    if (isAdminEmail(user.email)) user.role = 'admin';
     user.personal = {
       ...(user.personal || {}),
       firstName: user.personal?.firstName || firstName,
@@ -139,11 +156,14 @@ router.post('/register', async (req, res) => {
     const existingUser = await User.findOne({ email: email.toLowerCase() });
     if (existingUser) return res.status(409).json({ error: 'Email is already registered' });
 
+    const normalizedEmail = email.toLowerCase();
+
     const user = await User.create({
-      email: email.toLowerCase(),
+      email: normalizedEmail,
       phone,
       password: hashPassword(password),
       verified: false,
+      role: isAdminEmail(normalizedEmail) ? 'admin' : 'user',
       personal: {
         firstName,
         lastName,
@@ -179,9 +199,64 @@ router.post('/login', async (req, res) => {
       return res.status(401).json({ error: 'Invalid email or password' });
     }
 
+    if (isAdminEmail(user.email) && user.role !== 'admin') {
+      user.role = 'admin';
+      await user.save();
+    }
+
     return res.json(createAuthResponse(user));
   } catch (error) {
     return res.status(500).json({ error: 'Login failed' });
+  }
+});
+
+router.post('/admin-login', async (req, res) => {
+  try {
+    const { email, password } = req.body;
+    const normalizedEmail = (email || '').trim().toLowerCase();
+    const adminPassword = (password || '').trim();
+
+    if (!normalizedEmail || !adminPassword) {
+      return res.status(400).json({ error: 'Owner email and password are required' });
+    }
+
+    if (!isAdminEmail(normalizedEmail)) {
+      return res.status(403).json({ error: 'This email is not configured as a business owner' });
+    }
+
+    if (!ADMIN_PASSWORD) {
+      return res.status(500).json({ error: 'ADMIN_PASSWORD is not configured in backend/.env' });
+    }
+
+    if (!safeCompare(adminPassword, ADMIN_PASSWORD.trim())) {
+      return res.status(401).json({ error: 'Invalid business owner password' });
+    }
+
+    let user = await User.findOne({ email: normalizedEmail });
+
+    if (!user) {
+      user = await User.create({
+        email: normalizedEmail,
+        password: hashPassword(adminPassword),
+        verified: true,
+        role: 'admin',
+        personal: {
+          firstName: 'Business',
+          lastName: 'Owner',
+          gender: 'other',
+        },
+      });
+    } else {
+      user.role = 'admin';
+      user.verified = true;
+      if (!user.password) user.password = hashPassword(adminPassword);
+      await user.save();
+    }
+
+    return res.json(createAuthResponse(user));
+  } catch (error) {
+    console.error('Admin login failed:', error);
+    return res.status(500).json({ error: 'Business owner login failed' });
   }
 });
 

@@ -1,5 +1,5 @@
 import React, { Suspense } from 'react';
-import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
+import { BrowserRouter as Router, Routes, Route, Navigate, useLocation } from 'react-router-dom';
 import { AuthProvider, useAuth } from './context/AuthContext';
 import { Header } from './components/layout/Header';
 import { Footer } from './components/layout/Footer';
@@ -44,8 +44,10 @@ const ProtectedRoute: React.FC<{ children: React.ReactNode; adminOnly?: boolean 
 
 const AppContent: React.FC = () => {
   const { isAdmin } = useAuth();
+  const location = useLocation();
   const [showLoginModal, setShowLoginModal] = React.useState(false);
   const [showRegisterModal, setShowRegisterModal] = React.useState(false);
+  const isAdminArea = location.pathname.startsWith('/admin') || location.pathname.startsWith('/amin');
 
   const routeFallback = (
     <div className="min-h-[50vh] flex items-center justify-center text-gray-500">
@@ -56,10 +58,12 @@ const AppContent: React.FC = () => {
   return (
     <div className="min-h-screen flex flex-col">
       <ToastProvider />
-      <Header
-        onOpenLoginModal={() => setShowLoginModal(true)}
-        onOpenRegisterModal={() => setShowRegisterModal(true)}
-      />
+      {!isAdminArea && (
+        <Header
+          onOpenLoginModal={() => setShowLoginModal(true)}
+          onOpenRegisterModal={() => setShowRegisterModal(true)}
+        />
+      )}
       <main className="flex-1">
         <Suspense fallback={routeFallback}>
           <Routes>
@@ -119,30 +123,31 @@ const AppContent: React.FC = () => {
             
             {/* Admin Only Routes */}
             <Route path="/admin/*" element={<AdminRoutes />} />
+            <Route path="/amin/*" element={<Navigate to="/admin" replace />} />
             
             {/* Catch all route */}
             <Route path="*" element={<Navigate to="/" replace />} />
           </Routes>
         </Suspense>
       </main>
-      <Footer />
+      {!isAdminArea && <Footer />}
       {/* Modals for global access */}
-      <Modal isOpen={showLoginModal} onClose={() => setShowLoginModal(false)} title="Sign In" size="xl">
+      {!isAdminArea && <Modal isOpen={showLoginModal} onClose={() => setShowLoginModal(false)} title="Sign In" size="xl">
         <Suspense fallback={routeFallback}>
           <LoginPage onSwitchToRegister={() => {
             setShowLoginModal(false);
             setShowRegisterModal(true);
           }} onSuccess={() => setShowLoginModal(false)} embedded />
         </Suspense>
-      </Modal>
-      <Modal isOpen={showRegisterModal} onClose={() => setShowRegisterModal(false)} title="Create Account" size="auth">
+      </Modal>}
+      {!isAdminArea && <Modal isOpen={showRegisterModal} onClose={() => setShowRegisterModal(false)} title="Create Account" size="auth">
         <Suspense fallback={routeFallback}>
           <RegisterPage onSwitchToLogin={() => {
             setShowRegisterModal(false);
             setShowLoginModal(true);
           }} onSuccess={() => setShowRegisterModal(false)} embedded />
         </Suspense>
-      </Modal>
+      </Modal>}
     </div>
   );
 };

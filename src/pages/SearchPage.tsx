@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useCallback, useState } from 'react';
 import { motion } from 'framer-motion';
 import { 
   Search, 
@@ -19,6 +19,7 @@ import { Select } from '../components/ui/Select';
 import { Badge } from '../components/ui/Badge';
 import { Modal } from '../components/ui/Modal';
 import { useAuth } from '../context/AuthContext';
+import { GoogleLocationInput } from '../components/ui/GoogleLocationInput';
 
 // Place the profiles array here, outside the component
 const profiles = [
@@ -110,17 +111,37 @@ export const SearchPage: React.FC<{ onOpenRegisterModal?: () => void }> = ({ onO
   const { user } = useAuth();
   const [showFilters, setShowFilters] = useState(false);
   const [selectedProfile, setSelectedProfile] = useState<any>(null);
-  const [filters] = useState({
+  const [filters, setFilters] = useState({
     ageRange: [25, 35],
     heightRange: ['5.0', '6.0'],
     education: [] as string[],
     occupation: [] as string[],
-    location: [] as string[],
+    location: '',
     religion: [] as string[],
     maritalStatus: [] as string[]
   });
   const [searchTerm, setSearchTerm] = useState('');
+  const [locationSearch, setLocationSearch] = useState('');
   const [results, setResults] = useState(profiles);
+
+  const applySearch = useCallback((nextSearchTerm: string, nextLocation: string) => {
+    const normalizedTerm = nextSearchTerm.trim().toLowerCase();
+    const normalizedLocation = nextLocation.trim().toLowerCase();
+
+    setResults(profiles.filter(profile => {
+      const matchesKeyword = !normalizedTerm ||
+        profile.name.toLowerCase().includes(normalizedTerm) ||
+        profile.occupation.toLowerCase().includes(normalizedTerm) ||
+        profile.company.toLowerCase().includes(normalizedTerm) ||
+        profile.education.toLowerCase().includes(normalizedTerm) ||
+        profile.location.toLowerCase().includes(normalizedTerm);
+
+      const matchesLocation = !normalizedLocation ||
+        profile.location.toLowerCase().includes(normalizedLocation);
+
+      return matchesKeyword && matchesLocation;
+    }));
+  }, []);
 
   const educationOptions = [
     { value: 'bachelors', label: 'Bachelors' },
@@ -157,7 +178,7 @@ export const SearchPage: React.FC<{ onOpenRegisterModal?: () => void }> = ({ onO
 
         {/* Search Bar */}
         <div className="mb-6">
-          <div className="flex gap-4">
+          <div className="grid grid-cols-1 lg:grid-cols-[1fr_360px_auto] gap-4">
             <div className="flex-1">
               <Input
                 type="text"
@@ -167,13 +188,25 @@ export const SearchPage: React.FC<{ onOpenRegisterModal?: () => void }> = ({ onO
                 onChange={(e) => {
                   const value = e.target.value;
                   setSearchTerm(value);
-                  setResults(profiles.filter(profile =>
-                    profile.name.toLowerCase().includes(value.toLowerCase())
-                  ));
+                  applySearch(value, locationSearch);
                 }}
                 data-testid="search-input"
               />
             </div>
+            <GoogleLocationInput
+              value={locationSearch}
+              onChange={(value) => {
+                setLocationSearch(value);
+                applySearch(searchTerm, value);
+              }}
+              onPlaceSelect={(place) => {
+                const location = place.city || place.formattedAddress;
+                setLocationSearch(location);
+                setFilters(currentFilters => ({ ...currentFilters, location }));
+                applySearch(searchTerm, location);
+              }}
+              placeholder="Search location"
+            />
             <Button
               variant="outline"
               onClick={() => setShowFilters(true)}
@@ -190,7 +223,7 @@ export const SearchPage: React.FC<{ onOpenRegisterModal?: () => void }> = ({ onO
           <div className="flex flex-wrap gap-2">
             <Badge variant="primary">Age: 25-35</Badge>
             <Badge variant="secondary">Height: 5.0-6.0</Badge>
-            <Badge variant="success">Mumbai</Badge>
+            {locationSearch && <Badge variant="success">{locationSearch}</Badge>}
           </div>
         </div>
 
@@ -383,8 +416,14 @@ export const SearchPage: React.FC<{ onOpenRegisterModal?: () => void }> = ({ onO
               options={occupationOptions}
             />
 
-            <Input
+            <GoogleLocationInput
               label="Location"
+              value={filters.location}
+              onChange={(value) => setFilters(currentFilters => ({ ...currentFilters, location: value }))}
+              onPlaceSelect={(place) => {
+                const location = place.city || place.formattedAddress;
+                setFilters(currentFilters => ({ ...currentFilters, location }));
+              }}
               placeholder="Enter city, state"
             />
 
@@ -403,7 +442,14 @@ export const SearchPage: React.FC<{ onOpenRegisterModal?: () => void }> = ({ onO
             <Button variant="outline" onClick={() => setShowFilters(false)} className="flex-1">
               Cancel
             </Button>
-            <Button onClick={() => setShowFilters(false)} className="flex-1">
+            <Button
+              onClick={() => {
+                setLocationSearch(filters.location);
+                applySearch(searchTerm, filters.location);
+                setShowFilters(false);
+              }}
+              className="flex-1"
+            >
               Apply Filters
             </Button>
           </div>
