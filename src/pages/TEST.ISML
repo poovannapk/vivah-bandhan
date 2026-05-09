@@ -1,0 +1,40 @@
+<div class="discover-categories ${pdict.customClasses}">
+    <div class="discover-categories__content-wrapper container ${ObjectUtils.safeGet(pdict, 'positioningClass', '')}">
+        <div class="discover-categories__title-wrapper">
+            <div class="discover-categories__title">
+                <${pdict.titleType} class="${pdict.titleCustomClasses}">
+                    ${pdict.titleText}
+                </${pdict.titleType}>
+            </div>
+        </div>
+
+        <!-- 👇 tiles wrapper -->
+        <div class="discover-categories__tiles-wrapper">
+            <!-- 👇 MOVE arrows here -->
+            <div class="slick-arrow-wrapper">
+                <span class="slick-arrow slick-prev d-none disabled">
+                    <i class="icon icon-arrow-left icon-size-s"></i>
+                </span>
+                <span class="slick-arrow slick-next d-none disabled">
+                    <i class="icon icon-arrow-right icon-size-s"></i>
+                </span>
+            </div>
+
+            <isloop items="${pdict.categories}" var="currentCategory">
+                <a href="${currentCategory.url}" class="d-flex flex-column discover-categories-tiles">
+                    <div class="image-wrapper">
+                        <img src="${currentCategory.thumbnail.URL}" alt="${currentCategory.name}" />
+                    </div>
+                    <span class="category-name">
+                        <isif condition="${currentCategory.categoryHeading}">
+                            ${currentCategory.categoryHeading}
+                        <iselse>
+                            ${currentCategory.name}
+                        </iselse>
+                        </isif>
+                    </span>
+                </a>
+            </isloop>
+        </div>
+    </div>
+</div>

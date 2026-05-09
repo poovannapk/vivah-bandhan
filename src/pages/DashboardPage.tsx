@@ -4,12 +4,9 @@ import {
   Users, 
   Heart, 
   MessageCircle, 
-  Star, 
   Eye,
   UserCheck,
   Crown,
-  TrendingUp,
-  Calendar,
   Gift
 } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';

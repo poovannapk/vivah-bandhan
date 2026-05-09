@@ -1,0 +1,222 @@
+@import "bootstrap/scss/mixins/breakpoints";
+@import "../variables";
+@import "../functions/rem";
+
+/*
+ * ADD-TO-CART SUCCESS TOASTER
+ */
+
+.product-detail,
+.search-results {
+    @include media-breakpoint-up(lg) {
+        .product-add-to-cart-success-toaster {
+            top: px-to-rem(80px);
+        }
+
+        &:has(.sticky-atb-bar.d-none) {
+            .product-add-to-cart-success-toaster {
+                top: px-to-rem(120px);
+            }
+        }
+    }
+}
+
+@import "bootstrap/scss/mixins/breakpoints";
+@import "../variables";
+@import "../functions/rem";
+
+/* === ADD TO CART TOASTER OVERLAY === */
+
+.product-detail,
+.search-results {
+    @include media-breakpoint-up(lg) {
+        .product-add-to-cart-success-toaster {
+            top: px-to-rem(80px);
+        }
+
+        &:has(.sticky-atb-bar.d-none) {
+            .product-add-to-cart-success-toaster {
+                top: px-to-rem(120px);
+            }
+        }
+    }
+}
+
+.product-add-to-cart-success-toaster {
+    /* full-screen overlay */
+    position: fixed;
+    inset: 0;
+    z-index: $z-index-toaster;
+
+    display: flex;
+    justify-content: center;
+    align-items: flex-start;
+
+    padding: px-to-rem(80px) $size-20;
+    background-color: rgba(0, 0, 0, 0.3);
+
+    .add-to-cart-success-toaster-body {
+        width: 100%;
+        max-width: px-to-rem(576px);
+        margin: 0 auto;
+    }
+
+    @include media-breakpoint-up(lg) {
+        padding: px-to-rem(80px);
+    }
+}
+
+/* === WHITE CARD CONTAINER === */
+
+.confirmation-success-container {
+    background-color: $white;
+    color: $black;
+    font-family: $base-font-family;
+    width: 100%;
+}
+
+.confirmation-success-body {
+    padding: $size-24 $size-30 $size-30;
+
+    @include media-breakpoint-up(md) {
+        padding: $size-32 $size-30 $size-30;
+    }
+
+    @include media-breakpoint-up(lg) {
+        padding: $size-32 $size-40 $size-40;
+    }
+}
+
+.confirmation-success-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: $size-24;
+
+    .header-title {
+        display: flex;
+        align-items: center;
+        margin: 0;
+
+        span {
+            font-size: $base-font-size;
+            line-height: $line-height-4;
+            letter-spacing: $letter-spacing-sm;
+            text-transform: uppercase;
+        }
+
+        .icon-check {
+            margin-right: $size-8;
+        }
+    }
+
+    .close-toaster {
+        background: none;
+        border: 0;
+        padding: 0;
+        display: flex;
+        cursor: pointer;
+    }
+}
+
+/* Simple product row – yours already looks fine, so keep existing rules if needed */
+
+
+/* === "YOU MIGHT ALSO LIKE" SECTION + SLICK === */
+
+.confirmation-success-recommended-products {
+    margin-top: 0;
+    padding: $size-24 $size-30 $size-30;
+    background-color: $lightgrey;
+
+    @include media-breakpoint-up(md) {
+        padding: $size-30 $size  -30 $size-30;
+    }
+
+    @include media-breakpoint-up(lg) {
+        padding: $size-30 $size-40 $size-30;
+    }
+ 
+    .recommended-products-title {
+        font-size: $h3-font-size;
+        line-height: $line-height-5;
+        letter-spacing: $body-small-letter-spacing;
+        margin-bottom: $size-10;   // tight to the slider
+        color: $black;
+    }
+
+    .frequently-bought-together {
+        margin: 0;                 // remove extra gap under title
+        position: relative;
+
+        button {
+            background: none;
+            border: none;
+            padding: 0;
+            font: inherit;
+            color: inherit;
+            cursor: pointer;
+        }
+
+        .slick-list {
+            margin: 0;
+            line-height: 0;
+        }
+
+        .slick-prev,
+        .slick-next {
+            position: absolute;
+            top: 50%;
+            transform: translateY(-50%);
+            width: $size-14;
+            height: $size-14;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .slick-prev {
+            left: -$size-20;       // arrow next to title on the left
+        }
+
+        .slick-next {
+            right: -$size-20;      // arrow on the right
+        }
+
+        .slick-disabled {
+            opacity: .5;
+        }
+
+        /* basic tile cleanup – keep your existing tile styles if they work */
+        .product-tile {
+            display: flex;
+            column-gap: $size-10;
+            border: none;
+            background-color: inherit;
+
+            .image-container {
+                width: px-to-rem(97px);
+                height: px-to-rem(97px);
+                margin: 0;
+                padding: 0;
+                flex-shrink: 0;
+
+                img {
+                    max-width: 100%;
+                    height: auto;
+                    display: block;
+
+                    &:not(:first-child) {
+                        display: none;
+                    }
+                }
+            }
+        }
+
+        @include media-breakpoint-up(lg) {
+            .slick-list {
+                overflow: hidden;
+            }
+        }
+    }
+}

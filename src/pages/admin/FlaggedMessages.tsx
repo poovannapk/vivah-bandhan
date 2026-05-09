@@ -18,12 +18,6 @@ const FlaggedMessages: React.FC = () => {
     }).then(res => setMessages(res.data));
   }, []);
 
-  const handleUnflag = (id: string) => {
-    axios.post(`/api/admin/flag-message/${id}`, {}, {
-      headers: { Authorization: `Bearer ${localStorage.getItem('token')}` }
-    }).then(() => setMessages(msgs => msgs.filter(m => m._id !== id)));
-  };
-
   const handleApprove = (id: string) => {
     // Approve: unflag the message (implement endpoint if needed)
     axios.post(`/api/admin/flag-message/${id}`, {}, {

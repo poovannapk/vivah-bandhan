@@ -7,7 +7,11 @@ import { Button } from '../components/ui/Button';
 import { Input } from '../components/ui/Input';
 import { Card } from '../components/ui/Card';
 
-export const LoginPage: React.FC<{ onSwitchToRegister?: () => void }> = ({ onSwitchToRegister }) => {
+export const LoginPage: React.FC<{
+  onSwitchToRegister?: () => void;
+  onSuccess?: () => void;
+  embedded?: boolean;
+}> = ({ onSwitchToRegister, onSuccess, embedded = false }) => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
@@ -22,6 +26,7 @@ export const LoginPage: React.FC<{ onSwitchToRegister?: () => void }> = ({ onSwi
     setError('');
     try {
       await login(email, password);
+      onSuccess?.();
       navigate('/dashboard');
     } catch (err) {
       if (err instanceof Error) setError(err.message || 'Login failed.');
@@ -42,27 +47,27 @@ export const LoginPage: React.FC<{ onSwitchToRegister?: () => void }> = ({ onSwi
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-primary-50 via-secondary-50 to-accent-50 flex items-center justify-center px-4 sm:px-6 lg:px-8">
+    <div className={`${embedded ? 'min-h-0 bg-white px-0' : 'min-h-screen bg-gradient-to-br from-primary-50 via-secondary-50 to-accent-50 px-4 sm:px-6 lg:px-8'} flex items-center justify-center`}>
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.6 }}
-        className="max-w-md w-full"
+        className={`${embedded ? 'max-w-2xl' : 'max-w-md'} w-full`}
       >
-        <Card className="p-8">
+        <Card className={embedded ? 'p-0 shadow-none border-0' : 'p-8'}>
           {/* Header */}
-          <div className="text-center mb-8">
-            <div className="flex justify-center mb-4">
-              <div className="bg-gradient-to-r from-primary-500 to-secondary-500 p-3 rounded-full">
-                <Handshake className="h-8 w-8 text-white" />
+          <div className={`text-center ${embedded ? 'mb-5' : 'mb-8'}`}>
+            <div className={`flex justify-center ${embedded ? 'mb-3' : 'mb-4'}`}>
+              <div className={`bg-gradient-to-r from-primary-500 to-secondary-500 ${embedded ? 'p-2' : 'p-3'} rounded-full`}>
+                <Handshake className={`${embedded ? 'h-6 w-6' : 'h-8 w-8'} text-white`} />
               </div>
             </div>
-            <h2 className="text-3xl font-bold text-gray-900 mb-2">Welcome Back</h2>
+            <h2 className={`${embedded ? 'text-2xl' : 'text-3xl'} font-bold text-gray-900 mb-2`}>Welcome Back</h2>
             <p className="text-gray-600">Sign in to your account to continue</p>
           </div>
 
           {/* Form */}
-          <form onSubmit={handleSubmit} className="space-y-6">
+          <form onSubmit={handleSubmit} className={embedded ? 'space-y-4' : 'space-y-6'}>
             {error && (
               <div className="bg-red-50 border border-red-200 text-red-600 px-4 py-3 rounded-lg text-sm">
                 {error}

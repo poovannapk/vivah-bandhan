@@ -16,11 +16,6 @@ const FlaggedPhotos: React.FC = () => {
     }).then(res => setUsers(res.data));
   }, []);
 
-  const handleReview = (userId: string, photoUrl: string) => {
-    // Implement review logic (e.g., remove photo, mark as safe, etc.)
-    alert(`Reviewed photo for user ${userId}: ${photoUrl}`);
-  };
-
   const handleApprove = (userId: string, photoUrl: string) => {
     // Approve: remove from flaggedPhotos (implement endpoint if needed)
     setUsers(users => users.map(u => u._id === userId ? { ...u, flaggedPhotos: u.flaggedPhotos.filter(p => p !== photoUrl) } : u));

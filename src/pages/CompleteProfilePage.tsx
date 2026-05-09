@@ -5,7 +5,8 @@ import { useAuth } from '../context/AuthContext';
 const CompleteProfilePage: React.FC = () => {
   const { user, updateUser } = useAuth();
   const [form, setForm] = useState({
-    name: user?.firstName && user?.lastName ? `${user.firstName} ${user.lastName}` : '',
+    firstName: user?.firstName || '',
+    lastName: user?.lastName || '',
     dateOfBirth: user?.dateOfBirth || '',
     gender: user?.gender || '',
     phone: user?.phone || '',
@@ -24,19 +25,28 @@ const CompleteProfilePage: React.FC = () => {
     setLoading(true);
     try {
       const token = localStorage.getItem('token');
-      const res = await fetch('/api/auth/update-profile', {
-        method: 'POST',
+      const res = await fetch('/api/profile', {
+        method: 'PUT',
         headers: {
           'Content-Type': 'application/json',
           Authorization: `Bearer ${token}`,
         },
-        body: JSON.stringify(form),
+        body: JSON.stringify({
+          phone: form.phone,
+          verified: true,
+          personal: {
+            firstName: form.firstName,
+            lastName: form.lastName,
+            gender: form.gender,
+            dob: form.dateOfBirth,
+          },
+        }),
       });
       const data = await res.json();
       if (!res.ok) throw new Error(data.error || 'Profile update failed');
       updateUser({
-        firstName: form.name.split(' ')[0],
-        lastName: form.name.split(' ').slice(1).join(' '),
+        firstName: form.firstName,
+        lastName: form.lastName,
         dateOfBirth: form.dateOfBirth,
         gender: form.gender as 'male' | 'female' | 'other',
         phone: form.phone,
@@ -57,10 +67,19 @@ const CompleteProfilePage: React.FC = () => {
         {error && <div className="text-red-600 mb-2">{error}</div>}
         <input
           type="text"
-          name="name"
+          name="firstName"
           className="border p-2 w-full mb-4"
-          placeholder="Full Name"
-          value={form.name}
+          placeholder="First Name"
+          value={form.firstName}
+          onChange={handleChange}
+          required
+        />
+        <input
+          type="text"
+          name="lastName"
+          className="border p-2 w-full mb-4"
+          placeholder="Last Name"
+          value={form.lastName}
           onChange={handleChange}
           required
         />

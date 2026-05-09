@@ -26,9 +26,6 @@ import {
   Calendar,
   Users,
   Home,
-  Utensils,
-  Cigarette,
-  Wine,
   Plus,
   X
 } from 'lucide-react';
@@ -38,11 +35,9 @@ import { Input } from '../components/ui/Input';
 import { Select } from '../components/ui/Select';
 import { Badge } from '../components/ui/Badge';
 import { useAuth } from '../context/AuthContext';
-import { useNavigate } from 'react-router-dom';
 
 export const ProfilePage: React.FC = () => {
   const { user, updateUser } = useAuth();
-  const navigate = useNavigate();
   const [isEditing, setIsEditing] = useState(false);
   const [activeTab, setActiveTab] = useState('basic');
   const [profileData, setProfileData] = useState({

@@ -6,7 +6,6 @@ import {
   Users, 
   Shield, 
   Star, 
-  CheckCircle, 
   Play,
   ArrowRight,
   Sparkles,

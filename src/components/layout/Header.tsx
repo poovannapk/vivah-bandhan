@@ -4,9 +4,6 @@ import { Handshake, Menu, X, User, Settings, LogOut, Bell } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
 import { Button } from '../ui/Button';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Modal } from '../ui/Modal';
-import { LoginPage } from '../../pages/LoginPage';
-import { RegisterPage } from '../../pages/RegisterPage';
 
 export const Header: React.FC<{ onOpenLoginModal?: () => void; onOpenRegisterModal?: () => void }> = ({ onOpenLoginModal, onOpenRegisterModal }) => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
@@ -116,34 +113,11 @@ export const Header: React.FC<{ onOpenLoginModal?: () => void; onOpenRegisterMod
               </>
             ) : (
               <div className="flex items-center space-x-3">
-                {/* <Button variant="ghost" onClick={() => setShowLoginModal(true)}>
+                <Button variant="ghost" onClick={onOpenLoginModal}>
                   Sign In
-                </Button> */}
+                </Button>
                 <Button onClick={onOpenRegisterModal}>
                   Get Started
-                </Button>
-                <Button
-                  className="ml-2"
-                  variant="outline"
-                  onClick={() => {
-                    // Set a dummy user in localStorage and reload
-                    localStorage.setItem('user', JSON.stringify({
-                      firstName: 'Demo',
-                      lastName: 'User',
-                      email: 'demo@vivah.com',
-                      dateOfBirth: '1995-01-01',
-                      gender: 'male',
-                      phone: '9999999999',
-                      occupation: 'Engineer',
-                      city: 'Mumbai',
-                      state: 'Maharashtra',
-                      country: 'India',
-                      // add more fields as needed
-                    }));
-                    window.location.reload();
-                  }}
-                >
-                  Temporary Login
                 </Button>
               </div>
             )}
@@ -201,14 +175,6 @@ export const Header: React.FC<{ onOpenLoginModal?: () => void; onOpenRegisterMod
           </motion.div>
         )}
       </AnimatePresence>
-
-      {/* Modals */}
-      <Modal isOpen={false} onClose={() => {}} title="Sign In">
-        <LoginPage onSwitchToRegister={() => {}} />
-      </Modal>
-      <Modal isOpen={false} onClose={() => {}} title="Create Account">
-        <RegisterPage onSwitchToLogin={() => {}} />
-      </Modal>
     </header>
   );
 };

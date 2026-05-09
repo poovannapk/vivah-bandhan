@@ -6,7 +6,7 @@ interface ModalProps {
   onClose: () => void;
   title?: string;
   children: React.ReactNode;
-  size?: 'sm' | 'md' | 'lg' | 'xl';
+  size?: 'sm' | 'md' | 'lg' | 'xl' | 'auth';
 }
 
 export const Modal: React.FC<ModalProps> = ({
@@ -20,13 +20,14 @@ export const Modal: React.FC<ModalProps> = ({
     sm: 'max-w-md',
     md: 'max-w-lg',
     lg: 'max-w-2xl',
-    xl: 'max-w-4xl'
+    xl: 'max-w-4xl',
+    auth: 'max-w-5xl'
   };
 
   if (!isOpen) return null;
 
   return (
-    <div className="fixed inset-0 z-50 overflow-y-auto">
+    <div className="fixed inset-0 z-50 overflow-y-auto scrollbar-hidden">
       <div className="flex items-center justify-center min-h-screen px-4 pt-4 pb-20 text-center sm:block sm:p-0">
         <div
           className="fixed inset-0 transition-opacity bg-gray-900 bg-opacity-80"
@@ -34,7 +35,7 @@ export const Modal: React.FC<ModalProps> = ({
         />
         <span className="hidden sm:inline-block sm:align-middle sm:h-screen">&#8203;</span>
         <div
-          className={`inline-block w-full ${sizeClasses[size]} p-6 my-8 overflow-hidden text-left align-middle transition-all transform bg-white shadow-xl rounded-2xl`}
+          className={`inline-block w-full ${sizeClasses[size]} ${size === 'auth' ? 'p-4 my-2 max-h-[96vh]' : 'p-6 my-6 max-h-[90vh]'} overflow-y-auto scrollbar-hidden text-left align-middle transition-all transform bg-white shadow-xl rounded-2xl`}
         >
           {title && (
             <div className="flex items-center justify-between mb-4">

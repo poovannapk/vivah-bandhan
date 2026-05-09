@@ -1,5 +1,6 @@
-import React, { createContext, useContext, useState, useEffect } from 'react';
+import React, { createContext, useCallback, useContext, useState, useEffect } from 'react';
 import { User } from '../types';
+import { authApi } from '../lib/api';
 
 interface AuthContextType {
   user: User | null;
@@ -7,6 +8,8 @@ interface AuthContextType {
   register: (userData: Partial<User> & { password?: string }) => Promise<void>;
   logout: () => void;
   updateUser: (userData: Partial<User>) => void;
+  setAuthenticatedUser: (token: string, user: User) => void;
+  refreshUser: () => Promise<void>;
   isLoading: boolean;
   isAdmin: boolean;
 }
@@ -26,44 +29,39 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
-    // Check for stored user data
     const storedUser = localStorage.getItem('user');
     if (storedUser) {
-      setUser(JSON.parse(storedUser));
+      try {
+        setUser(JSON.parse(storedUser));
+      } catch {
+        localStorage.removeItem('user');
+      }
     }
     setIsLoading(false);
+  }, []);
+
+  const setAuthenticatedUser = useCallback((token: string, nextUser: User) => {
+    localStorage.setItem('token', token);
+    localStorage.setItem('user', JSON.stringify(nextUser));
+    setUser(nextUser);
+  }, []);
+
+  const refreshUser = useCallback(async () => {
+    setIsLoading(true);
+    try {
+      const { user: nextUser } = await authApi.me();
+      localStorage.setItem('user', JSON.stringify(nextUser));
+      setUser(nextUser);
+    } finally {
+      setIsLoading(false);
+    }
   }, []);
 
   const login = async (email: string, password: string) => {
     setIsLoading(true);
     try {
-      const res = await fetch('/api/auth/login', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email, password }),
-      });
-      const data = await res.json();
-      if (!res.ok) throw new Error(data.error || 'Login failed');
-      // Save token and user info
-      localStorage.setItem('token', data.token);
-      setUser({
-        id: Date.now().toString(),
-        email: data.user.email,
-        firstName: data.user.name?.split(' ')[0] || '',
-        lastName: data.user.name?.split(' ').slice(1).join(' ') || '',
-        dateOfBirth: '',
-        gender: 'male',
-        phone: '',
-        isVerified: true,
-        profileComplete: true,
-        subscription: 'free',
-        isActive: true,
-        lastSeen: new Date().toISOString(),
-        joinedDate: new Date().toISOString(),
-        verificationStatus: 'verified',
-        role: data.user.role || 'user',
-      });
-      localStorage.setItem('user', JSON.stringify(data.user));
+      const data = await authApi.login(email, password);
+      setAuthenticatedUser(data.token, data.user);
     } catch (error) {
       if (error instanceof Error) throw new Error(error.message || 'Login failed');
       throw new Error('Login failed');
@@ -75,38 +73,8 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const register = async (userData: Partial<User> & { password?: string }) => {
     setIsLoading(true);
     try {
-      // Real API call
-      const res = await fetch('/api/auth/register', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          name: `${userData.firstName || ''} ${userData.lastName || ''}`.trim(),
-          email: userData.email,
-          password: userData.password,
-        }),
-      });
-      const data = await res.json();
-      if (!res.ok) throw new Error(data.error || 'Registration failed');
-      // Only set user as unverified, let them verify via email
-      const newUser: User = {
-        id: Date.now().toString(),
-        email: userData.email || '',
-        firstName: userData.firstName || '',
-        lastName: userData.lastName || '',
-        dateOfBirth: userData.dateOfBirth || '',
-        gender: userData.gender || 'male',
-        phone: userData.phone || '',
-        isVerified: false,
-        profileComplete: false,
-        subscription: 'free',
-        isActive: true,
-        lastSeen: new Date().toISOString(),
-        joinedDate: new Date().toISOString(),
-        verificationStatus: 'pending',
-        role: 'user',
-      };
-      setUser(newUser);
-      localStorage.setItem('user', JSON.stringify(newUser));
+      const data = await authApi.register(userData);
+      setAuthenticatedUser(data.token, data.user);
     } catch (error) {
       if (error instanceof Error) throw new Error(error.message || 'Registration failed');
       throw new Error('Registration failed');
@@ -118,6 +86,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const logout = () => {
     setUser(null);
     localStorage.removeItem('user');
+    localStorage.removeItem('token');
   };
 
   const updateUser = (userData: Partial<User>) => {
@@ -137,6 +106,8 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       register,
       logout,
       updateUser,
+      setAuthenticatedUser,
+      refreshUser,
       isLoading,
       isAdmin,
     }}>

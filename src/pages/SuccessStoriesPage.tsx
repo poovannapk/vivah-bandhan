@@ -6,7 +6,6 @@ import {
   MapPin, 
   Star, 
   Quote,
-  Filter,
   Search,
   Plus
 } from 'lucide-react';
@@ -20,7 +19,7 @@ import { Modal } from '../components/ui/Modal';
 export const SuccessStoriesPage: React.FC = () => {
   const [showSubmitModal, setShowSubmitModal] = useState(false);
   const [selectedStory, setSelectedStory] = useState<any>(null);
-  const [filters, setFilters] = useState({
+  const [filters] = useState({
     location: 'all',
     year: 'all',
     category: 'all'

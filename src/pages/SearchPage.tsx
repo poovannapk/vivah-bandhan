@@ -11,8 +11,6 @@ import {
   Briefcase,
   GraduationCap,
   Calendar,
-  X,
-  ChevronDown
 } from 'lucide-react';
 import { Button } from '../components/ui/Button';
 import { Card } from '../components/ui/Card';
@@ -112,7 +110,7 @@ export const SearchPage: React.FC<{ onOpenRegisterModal?: () => void }> = ({ onO
   const { user } = useAuth();
   const [showFilters, setShowFilters] = useState(false);
   const [selectedProfile, setSelectedProfile] = useState<any>(null);
-  const [filters, setFilters] = useState({
+  const [filters] = useState({
     ageRange: [25, 35],
     heightRange: ['5.0', '6.0'],
     education: [] as string[],
@@ -148,13 +146,6 @@ export const SearchPage: React.FC<{ onOpenRegisterModal?: () => void }> = ({ onO
     console.log('Sending message to:', profileId);
   };
 
-  const handleSearch = () => {
-    const filteredResults = profiles.filter(profile =>
-      profile.name.toLowerCase().includes(searchTerm.toLowerCase())
-    );
-    setResults(filteredResults);
-  };
-
   return (
     <div className="min-h-screen bg-gray-50 pt-8 pb-12">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -173,7 +164,13 @@ export const SearchPage: React.FC<{ onOpenRegisterModal?: () => void }> = ({ onO
                 placeholder="Search by name, profession, location..."
                 icon={<Search className="h-5 w-5" />}
                 value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
+                onChange={(e) => {
+                  const value = e.target.value;
+                  setSearchTerm(value);
+                  setResults(profiles.filter(profile =>
+                    profile.name.toLowerCase().includes(value.toLowerCase())
+                  ));
+                }}
                 data-testid="search-input"
               />
             </div>
