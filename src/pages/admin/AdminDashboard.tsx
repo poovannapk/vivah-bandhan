@@ -1,8 +1,11 @@
 import React, { useEffect, useMemo, useState } from 'react';
 import axios from 'axios';
 import {
+  Activity,
   AlertTriangle,
+  ArrowUpRight,
   Ban,
+  CalendarDays,
   Crown,
   IndianRupee,
   Mail,
@@ -92,13 +95,23 @@ const AdminDashboard: React.FC = () => {
   }, [analytics]);
 
   if (loading) {
-    return <div className="p-6 text-gray-600">Loading admin report...</div>;
+    return (
+      <div className="min-h-screen p-8">
+        <div className="animate-pulse space-y-6">
+          <div className="h-36 rounded-xl bg-white" />
+          <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-5">
+            {[1, 2, 3, 4].map(item => <div key={item} className="h-36 rounded-xl bg-white" />)}
+          </div>
+          <div className="h-80 rounded-xl bg-white" />
+        </div>
+      </div>
+    );
   }
 
   if (error || !analytics) {
     return (
-      <div className="p-6">
-        <Card className="p-6 border-red-200 bg-red-50 text-red-700">
+      <div className="p-8">
+        <Card className="p-6 border-red-200 bg-red-50 text-red-700 shadow-sm">
           {error || 'Unable to load admin report'}
         </Card>
       </div>
@@ -111,7 +124,8 @@ const AdminDashboard: React.FC = () => {
       value: number.format(analytics.totals.users),
       detail: `${number.format(analytics.totals.newUsers30Days)} joined in 30 days`,
       icon: Users,
-      tone: 'text-blue-600 bg-blue-50',
+      tone: 'text-sky-700 bg-sky-50',
+      accent: 'border-sky-200',
     },
     {
       label: 'Revenue',
@@ -119,6 +133,7 @@ const AdminDashboard: React.FC = () => {
       detail: `${currency.format(analytics.sales.revenueThisMonth)} this month`,
       icon: IndianRupee,
       tone: 'text-emerald-600 bg-emerald-50',
+      accent: 'border-emerald-200',
     },
     {
       label: 'Active Subscriptions',
@@ -126,46 +141,95 @@ const AdminDashboard: React.FC = () => {
       detail: `${number.format(analytics.totals.premiumUsers)} premium users`,
       icon: Crown,
       tone: 'text-amber-600 bg-amber-50',
+      accent: 'border-amber-200',
     },
     {
       label: 'Profile Completion',
       value: `${analytics.totals.profileCompletionRate}%`,
       detail: `${number.format(analytics.totals.verifiedUsers)} verified users`,
       icon: ShieldCheck,
-      tone: 'text-violet-600 bg-violet-50',
+      tone: 'text-rose-600 bg-rose-50',
+      accent: 'border-rose-200',
     },
   ];
 
   const operationalCards = [
-    { label: 'Active Users', value: analytics.totals.activeUsers, icon: UserCheck },
-    { label: 'Banned Users', value: analytics.totals.bannedUsers, icon: Ban },
-    { label: 'Messages', value: analytics.engagement.totalMessages, icon: MessageSquare },
-    { label: 'Unread Messages', value: analytics.engagement.unreadMessages, icon: Mail },
-    { label: 'Flagged Messages', value: analytics.engagement.flaggedMessages, icon: AlertTriangle },
-    { label: 'Flagged Photo Users', value: analytics.engagement.flaggedPhotoUsers, icon: AlertTriangle },
+    { label: 'Active Users', value: analytics.totals.activeUsers, icon: UserCheck, tone: 'text-emerald-600 bg-emerald-50' },
+    { label: 'Banned Users', value: analytics.totals.bannedUsers, icon: Ban, tone: 'text-red-600 bg-red-50' },
+    { label: 'Messages', value: analytics.engagement.totalMessages, icon: MessageSquare, tone: 'text-sky-600 bg-sky-50' },
+    { label: 'Unread Messages', value: analytics.engagement.unreadMessages, icon: Mail, tone: 'text-amber-600 bg-amber-50' },
+    { label: 'Flagged Messages', value: analytics.engagement.flaggedMessages, icon: AlertTriangle, tone: 'text-orange-600 bg-orange-50' },
+    { label: 'Flagged Photo Users', value: analytics.engagement.flaggedPhotoUsers, icon: AlertTriangle, tone: 'text-rose-600 bg-rose-50' },
   ];
 
   return (
-    <div className="space-y-8">
-      <div>
-        <div className="flex items-center gap-3 text-primary-600 mb-2">
-          <TrendingUp className="h-6 w-6" />
-          <span className="text-sm font-semibold uppercase tracking-wide">Business owner report</span>
+    <div className="space-y-7 p-8">
+      <section className="overflow-hidden rounded-xl border border-slate-200 bg-white shadow-sm">
+        <div className="grid grid-cols-1 xl:grid-cols-[1fr_420px]">
+          <div className="p-7">
+            <div className="flex items-center gap-3 text-slate-600 mb-3">
+              <span className="flex h-10 w-10 items-center justify-center rounded-lg bg-slate-900 text-white">
+                <TrendingUp className="h-5 w-5" />
+              </span>
+              <div>
+                <span className="text-xs font-semibold uppercase tracking-wide text-slate-500">Business owner report</span>
+                <p className="text-sm text-slate-500">{new Date().toLocaleDateString('en-IN', { day: 'numeric', month: 'long', year: 'numeric' })}</p>
+              </div>
+            </div>
+            <h1 className="text-3xl font-bold text-slate-950">Admin Dashboard</h1>
+            <p className="text-slate-600 mt-2 max-w-3xl">Complete overview of users, sales, subscriptions, moderation signals, and platform health.</p>
+          </div>
+
+          <div className="grid grid-cols-2 gap-px bg-slate-200 border-t border-slate-200 xl:border-l xl:border-t-0">
+            <div className="bg-slate-50 p-5">
+              <div className="flex items-center gap-2 text-slate-500">
+                <CalendarDays className="h-4 w-4" />
+                <span className="text-xs font-semibold uppercase tracking-wide">Today</span>
+              </div>
+              <p className="mt-3 text-2xl font-bold text-slate-950">{number.format(analytics.totals.newUsersToday)}</p>
+              <p className="text-sm text-slate-500">new users</p>
+            </div>
+            <div className="bg-slate-50 p-5">
+              <div className="flex items-center gap-2 text-slate-500">
+                <Activity className="h-4 w-4" />
+                <span className="text-xs font-semibold uppercase tracking-wide">Active</span>
+              </div>
+              <p className="mt-3 text-2xl font-bold text-slate-950">{number.format(analytics.totals.activeUsers)}</p>
+              <p className="text-sm text-slate-500">available profiles</p>
+            </div>
+            <div className="bg-white p-5">
+              <div className="flex items-center gap-2 text-slate-500">
+                <ShieldCheck className="h-4 w-4" />
+                <span className="text-xs font-semibold uppercase tracking-wide">Verified</span>
+              </div>
+              <p className="mt-3 text-2xl font-bold text-slate-950">{number.format(analytics.totals.verifiedUsers)}</p>
+              <p className="text-sm text-slate-500">trusted users</p>
+            </div>
+            <div className="bg-white p-5">
+              <div className="flex items-center gap-2 text-slate-500">
+                <Crown className="h-4 w-4" />
+                <span className="text-xs font-semibold uppercase tracking-wide">Premium</span>
+              </div>
+              <p className="mt-3 text-2xl font-bold text-slate-950">{number.format(analytics.totals.premiumUsers)}</p>
+              <p className="text-sm text-slate-500">paid members</p>
+            </div>
+          </div>
         </div>
-        <h1 className="text-3xl font-bold text-gray-900">Admin Dashboard</h1>
-        <p className="text-gray-600 mt-2">Complete overview of users, sales, subscriptions, and platform health.</p>
-      </div>
+      </section>
 
       <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-5">
         {summaryCards.map((item) => {
           const Icon = item.icon;
           return (
-            <Card key={item.label} className="p-5">
+            <Card key={item.label} className={`p-5 border-t-4 ${item.accent} shadow-sm hover:shadow-md`}>
               <div className="flex items-start justify-between">
                 <div>
-                  <p className="text-sm text-gray-500">{item.label}</p>
-                  <p className="text-2xl font-bold text-gray-900 mt-2">{item.value}</p>
-                  <p className="text-sm text-gray-500 mt-2">{item.detail}</p>
+                  <p className="text-sm font-medium text-slate-500">{item.label}</p>
+                  <p className="text-2xl font-bold text-slate-950 mt-2">{item.value}</p>
+                  <div className="mt-3 flex items-center gap-1.5 text-sm text-slate-500">
+                    <ArrowUpRight className="h-4 w-4 text-emerald-600" />
+                    <span>{item.detail}</span>
+                  </div>
                 </div>
                 <div className={`p-3 rounded-lg ${item.tone}`}>
                   <Icon className="h-6 w-6" />
@@ -177,11 +241,14 @@ const AdminDashboard: React.FC = () => {
       </div>
 
       <div className="grid grid-cols-1 xl:grid-cols-3 gap-6">
-        <Card className="p-6 xl:col-span-2">
+        <Card className="p-6 xl:col-span-2 shadow-sm">
           <div className="flex items-center justify-between mb-5">
             <div>
-              <h2 className="text-lg font-semibold text-gray-900">Sales Trend</h2>
-              <p className="text-sm text-gray-500">Revenue from subscriptions by month</p>
+              <h2 className="text-lg font-semibold text-slate-950">Sales Trend</h2>
+              <p className="text-sm text-slate-500">Revenue from subscriptions by month</p>
+            </div>
+            <div className="rounded-lg bg-emerald-50 px-3 py-2 text-sm font-semibold text-emerald-700">
+              {currency.format(analytics.sales.revenueThisMonth)}
             </div>
           </div>
           <div className="h-72">
@@ -193,9 +260,9 @@ const AdminDashboard: React.FC = () => {
                     <stop offset="95%" stopColor="#16a34a" stopOpacity={0} />
                   </linearGradient>
                 </defs>
-                <CartesianGrid strokeDasharray="3 3" stroke="#e5e7eb" />
-                <XAxis dataKey="month" tick={{ fontSize: 12 }} />
-                <YAxis tick={{ fontSize: 12 }} />
+                <CartesianGrid strokeDasharray="3 3" stroke="#e2e8f0" />
+                <XAxis dataKey="month" tick={{ fontSize: 12, fill: '#64748b' }} axisLine={false} tickLine={false} />
+                <YAxis tick={{ fontSize: 12, fill: '#64748b' }} axisLine={false} tickLine={false} />
                 <Tooltip formatter={(value) => currency.format(Number(value))} />
                 <Area type="monotone" dataKey="revenue" stroke="#16a34a" fill="url(#revenueFill)" strokeWidth={2} />
               </AreaChart>
@@ -203,17 +270,24 @@ const AdminDashboard: React.FC = () => {
           </div>
         </Card>
 
-        <Card className="p-6">
-          <h2 className="text-lg font-semibold text-gray-900">Subscription Mix</h2>
-          <p className="text-sm text-gray-500 mb-5">Plan distribution</p>
+        <Card className="p-6 shadow-sm">
+          <div className="flex items-start justify-between gap-4">
+            <div>
+              <h2 className="text-lg font-semibold text-slate-950">Subscription Mix</h2>
+              <p className="text-sm text-slate-500 mb-5">Plan distribution</p>
+            </div>
+            <div className="rounded-lg bg-amber-50 p-2 text-amber-700">
+              <Crown className="h-5 w-5" />
+            </div>
+          </div>
           <div className="h-72">
             <ResponsiveContainer width="100%" height="100%">
               <BarChart data={subscriptionRows}>
-                <CartesianGrid strokeDasharray="3 3" stroke="#e5e7eb" />
-                <XAxis dataKey="plan" tick={{ fontSize: 12 }} />
-                <YAxis allowDecimals={false} tick={{ fontSize: 12 }} />
+                <CartesianGrid strokeDasharray="3 3" stroke="#e2e8f0" />
+                <XAxis dataKey="plan" tick={{ fontSize: 12, fill: '#64748b' }} axisLine={false} tickLine={false} />
+                <YAxis allowDecimals={false} tick={{ fontSize: 12, fill: '#64748b' }} axisLine={false} tickLine={false} />
                 <Tooltip />
-                <Bar dataKey="count" fill="#7c3aed" radius={[6, 6, 0, 0]} />
+                <Bar dataKey="count" fill="#f59e0b" radius={[6, 6, 0, 0]} />
               </BarChart>
             </ResponsiveContainer>
           </div>
@@ -221,27 +295,29 @@ const AdminDashboard: React.FC = () => {
       </div>
 
       <div className="grid grid-cols-1 xl:grid-cols-3 gap-6">
-        <Card className="p-6">
-          <h2 className="text-lg font-semibold text-gray-900 mb-4">Operations</h2>
+        <Card className="p-6 shadow-sm">
+          <h2 className="text-lg font-semibold text-slate-950 mb-4">Operations</h2>
           <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-1 gap-3">
             {operationalCards.map((item) => {
               const Icon = item.icon;
               return (
-                <div key={item.label} className="flex items-center justify-between rounded-lg border border-gray-100 p-3">
+                <div key={item.label} className="flex items-center justify-between rounded-lg border border-slate-100 bg-slate-50/70 p-3">
                   <div className="flex items-center gap-3">
-                    <Icon className="h-5 w-5 text-gray-500" />
-                    <span className="text-sm text-gray-600">{item.label}</span>
+                    <span className={`flex h-9 w-9 items-center justify-center rounded-lg ${item.tone}`}>
+                      <Icon className="h-5 w-5" />
+                    </span>
+                    <span className="text-sm font-medium text-slate-600">{item.label}</span>
                   </div>
-                  <span className="font-semibold text-gray-900">{number.format(item.value)}</span>
+                  <span className="font-semibold text-slate-950">{number.format(item.value)}</span>
                 </div>
               );
             })}
           </div>
         </Card>
 
-        <Card className="p-6 xl:col-span-2">
-          <h2 className="text-lg font-semibold text-gray-900">User Growth</h2>
-          <p className="text-sm text-gray-500 mb-5">New registered users by month</p>
+        <Card className="p-6 xl:col-span-2 shadow-sm">
+          <h2 className="text-lg font-semibold text-slate-950">User Growth</h2>
+          <p className="text-sm text-slate-500 mb-5">New registered users by month</p>
           <div className="h-72">
             <ResponsiveContainer width="100%" height="100%">
               <AreaChart data={analytics.userGrowth}>
@@ -251,9 +327,9 @@ const AdminDashboard: React.FC = () => {
                     <stop offset="95%" stopColor="#2563eb" stopOpacity={0} />
                   </linearGradient>
                 </defs>
-                <CartesianGrid strokeDasharray="3 3" stroke="#e5e7eb" />
-                <XAxis dataKey="month" tick={{ fontSize: 12 }} />
-                <YAxis allowDecimals={false} tick={{ fontSize: 12 }} />
+                <CartesianGrid strokeDasharray="3 3" stroke="#e2e8f0" />
+                <XAxis dataKey="month" tick={{ fontSize: 12, fill: '#64748b' }} axisLine={false} tickLine={false} />
+                <YAxis allowDecimals={false} tick={{ fontSize: 12, fill: '#64748b' }} axisLine={false} tickLine={false} />
                 <Tooltip />
                 <Area type="monotone" dataKey="users" stroke="#2563eb" fill="url(#usersFill)" strokeWidth={2} />
               </AreaChart>
@@ -262,31 +338,43 @@ const AdminDashboard: React.FC = () => {
         </Card>
       </div>
 
-      <Card className="overflow-hidden">
-        <div className="px-6 py-4 border-b border-gray-100">
-          <h2 className="text-lg font-semibold text-gray-900">Recent Users</h2>
-          <p className="text-sm text-gray-500">Latest accounts created on the platform</p>
+      <Card className="overflow-hidden shadow-sm">
+        <div className="flex flex-col gap-3 border-b border-slate-100 px-6 py-5 sm:flex-row sm:items-center sm:justify-between">
+          <div>
+            <h2 className="text-lg font-semibold text-slate-950">Recent Users</h2>
+            <p className="text-sm text-slate-500">Latest accounts created on the platform</p>
+          </div>
+          <div className="rounded-lg bg-slate-100 px-3 py-2 text-sm font-semibold text-slate-700">
+            {number.format(analytics.recentUsers.length)} shown
+          </div>
         </div>
         <div className="overflow-x-auto">
-          <table className="min-w-full divide-y divide-gray-100">
-            <thead className="bg-gray-50">
+          <table className="min-w-full divide-y divide-slate-100">
+            <thead className="bg-slate-50">
               <tr>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">User</th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Contact</th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Status</th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Joined</th>
+                <th className="px-6 py-3 text-left text-xs font-semibold uppercase text-slate-500">User</th>
+                <th className="px-6 py-3 text-left text-xs font-semibold uppercase text-slate-500">Contact</th>
+                <th className="px-6 py-3 text-left text-xs font-semibold uppercase text-slate-500">Status</th>
+                <th className="px-6 py-3 text-left text-xs font-semibold uppercase text-slate-500">Joined</th>
               </tr>
             </thead>
-            <tbody className="bg-white divide-y divide-gray-100">
+            <tbody className="divide-y divide-slate-100 bg-white">
               {analytics.recentUsers.map(user => (
-                <tr key={user.id}>
+                <tr key={user.id} className="transition-colors hover:bg-slate-50">
                   <td className="px-6 py-4">
-                    <div className="font-medium text-gray-900">{user.name}</div>
-                    <div className="text-sm text-gray-500">{user.role}</div>
+                    <div className="flex items-center gap-3">
+                      <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-slate-900 text-sm font-semibold uppercase text-white">
+                        {(user.name || user.email || 'U').slice(0, 1)}
+                      </div>
+                      <div>
+                        <div className="font-medium text-slate-950">{user.name}</div>
+                        <div className="text-sm capitalize text-slate-500">{user.role}</div>
+                      </div>
+                    </div>
                   </td>
                   <td className="px-6 py-4">
-                    <div className="text-sm text-gray-900">{user.email}</div>
-                    <div className="text-sm text-gray-500">{user.phone}</div>
+                    <div className="text-sm text-slate-900">{user.email}</div>
+                    <div className="text-sm text-slate-500">{user.phone || 'No phone added'}</div>
                   </td>
                   <td className="px-6 py-4">
                     <div className="flex flex-wrap gap-2">
@@ -297,7 +385,7 @@ const AdminDashboard: React.FC = () => {
                       {user.banned && <Badge variant="error" size="sm">Banned</Badge>}
                     </div>
                   </td>
-                  <td className="px-6 py-4 text-sm text-gray-500">
+                  <td className="px-6 py-4 text-sm text-slate-500">
                     {new Date(user.joinedDate).toLocaleDateString()}
                   </td>
                 </tr>
