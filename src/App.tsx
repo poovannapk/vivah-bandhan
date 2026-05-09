@@ -17,7 +17,6 @@ const MessagesPage = React.lazy(() => import('./pages/MessagesPage').then(module
 const ProfilePage = React.lazy(() => import('./pages/ProfilePage').then(module => ({ default: module.ProfilePage })));
 const SuccessStoriesPage = React.lazy(() => import('./pages/SuccessStoriesPage').then(module => ({ default: module.SuccessStoriesPage })));
 const AdminRoutes = React.lazy(() => import('./pages/admin'));
-const AdminDashboard = React.lazy(() => import('./pages/AdminDashboard').then(module => ({ default: module.AdminDashboard })));
 const ForgotPasswordPage = React.lazy(() => import('./pages/ForgotPasswordPage'));
 const ResetPasswordPage = React.lazy(() => import('./pages/ResetPasswordPage'));
 const VerifyEmailPage = React.lazy(() => import('./pages/VerifyEmailPage'));
@@ -43,7 +42,6 @@ const ProtectedRoute: React.FC<{ children: React.ReactNode; adminOnly?: boolean 
 };
 
 const AppContent: React.FC = () => {
-  const { isAdmin } = useAuth();
   const location = useLocation();
   const [showLoginModal, setShowLoginModal] = React.useState(false);
   const [showRegisterModal, setShowRegisterModal] = React.useState(false);
@@ -84,7 +82,7 @@ const AppContent: React.FC = () => {
               path="/dashboard" 
               element={
                 <ProtectedRoute>
-                  {isAdmin ? <AdminDashboard /> : <DashboardPage />}
+                  <DashboardPage />
                 </ProtectedRoute>
               } 
             />
